@@ -1,0 +1,100 @@
+fileFormatVersion: 2
+guid: e0e09e165e514f744aedd311d5ed0923
+timeCreated: 1468413551
+licenseType: Free
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: //RootNode
+    100002: Mig-29_engine
+    100004: Mig-29_fuselage
+    100006: Mig-29_tail_fin
+    100008: Mig-29_tailplane
+    100010: Mig-29_wing
+    400000: //RootNode
+    400002: Mig-29_engine
+    400004: Mig-29_fuselage
+    400006: Mig-29_tail_fin
+    400008: Mig-29_tailplane
+    400010: Mig-29_wing
+    2300000: Mig-29_engine
+    2300002: Mig-29_fuselage
+    2300004: Mig-29_tail_fin
+    2300006: Mig-29_tailplane
+    2300008: Mig-29_wing
+    3300000: Mig-29_engine
+    3300002: Mig-29_fuselage
+    3300004: Mig-29_tail_fin
+    3300006: Mig-29_tailplane
+    3300008: Mig-29_wing
+    4300000: Mig-29_tail_fin
+    4300002: Mig-29_tailplane
+    4300004: Mig-29_wing
+    4300006: Mig-29_engine
+    4300008: Mig-29_fuselage
+    7400000: Default Take
+    9500000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleRotations: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
