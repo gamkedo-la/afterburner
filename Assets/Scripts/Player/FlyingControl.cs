@@ -76,7 +76,7 @@ public class FlyingControl : MonoBehaviour
         //float bankAngle = transform.rotation.eulerAngles.z;
         //float turnAmount = -Mathf.Sin(bankAngle * Mathf.Deg2Rad) * m_turnRate;
 
-        transform.Rotate(transform.up, turnAmount * Time.deltaTime, Space.World);
+        transform.Rotate((transform.up + Vector3.up).normalized, turnAmount * Time.deltaTime, Space.World);
 
         if (m_isPlayer && m_previousForwardSpeed != m_forwardSpeed)
             EventManager.TriggerEvent(FloatEventName.SetThrustLevel, m_forwardSpeed);
