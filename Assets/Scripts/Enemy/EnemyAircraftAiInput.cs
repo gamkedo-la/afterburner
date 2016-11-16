@@ -17,6 +17,8 @@ public class EnemyAircraftAiInput : MonoBehaviour
     [SerializeField] Vector2 m_pitchAngleMinMax = new Vector2(-45f, 45f); 
     [SerializeField] Vector2 m_bankAngleMinMaxForPitching = new Vector2(-45f, 45f);
     [SerializeField] Vector2 m_altitudeMinMax = new Vector2(100f, 1000f);
+    [SerializeField] Aircraft_Whiskers m_whiskers;
+    [SerializeField] float m_postAvoidDelay = 0.4f; //elapsed time to keep avoiding after there are no whisker collisions
 
     private WaitForSeconds m_waitTime;
 
@@ -63,12 +65,20 @@ public class EnemyAircraftAiInput : MonoBehaviour
     private float m_h;
     private float m_a;
 
+    [Header("Whisker values")]
+    private AircraftWhiskerInfo m_cWhiskerData;
+    private bool m_bDoAvoid; //bool that tracks if state should be avoid, true during whisker collision
+    private bool m_bAvoidResetWait; //flag to track if we are already waiting to reset, in case we get more false messages for whisker collisions
 
     void Awake()
     {
         m_flyingControlScript = GetComponent<FlyingControl>();
         m_health = GetComponent<EnemyHealth>();
-        
+
+        //if whiskers are not set in the inspector, see if they are attached to this component
+        if (!m_whiskers)
+            m_whiskers = GetComponent<Aircraft_Whiskers>();
+
         var playerObject = GameObject.FindGameObjectWithTag(Tags.Player);
 
         if (playerObject != null)
@@ -85,11 +95,32 @@ public class EnemyAircraftAiInput : MonoBehaviour
         m_spawnBankAngle = StandardiseAngle(-transform.rotation.eulerAngles.z);
         m_fleeHealth = Mathf.RoundToInt(m_health.CurrentHealth * m_fleeHealthProportion);
         m_patrolSpeed = m_flyingControlScript.ForwardSpeed;
+        m_cWhiskerData = new AircraftWhiskerInfo(Vector3.zero, false, false);
+
+        Subscribe();
 
         if (m_player != null)
             StartCoroutine(MakeDecisions());
     }
 
+    //Subscribe to events, currently just to subscribe to the WhiskerCollision event 
+    private void Subscribe()
+    {
+        if(m_whiskers)
+        {
+            m_whiskers.WhiskerCollisionSet += OnWhiskerSet;
+        }
+    }
+
+    //Unsubscribe from the subscribed events, this should probably occur on death, before the death animation
+    // don't need to clean up if the whiskers are attached to this game object or a child of this game object, 
+    private void Unsubscribe()
+    {
+        if (m_whiskers)
+        {
+            m_whiskers.WhiskerCollisionSet -= OnWhiskerSet;
+        }
+    }
 
     private IEnumerator MakeDecisions()
     {
@@ -108,6 +139,8 @@ public class EnemyAircraftAiInput : MonoBehaviour
                 CheckHealth();
             }
 
+            CheckWhiskers();
+
             switch (m_state)
             {
                 case (State.Patrol):
@@ -125,9 +158,14 @@ public class EnemyAircraftAiInput : MonoBehaviour
                 case (State.Flee):
                     UpdateFlee();
                     break;
+
+                case (State.Avoid):
+                    UpdateAvoid();
+                    break;
             }
 
-            CheckAltitude();
+            if(m_state != State.Avoid)
+                CheckAltitude();
 
             yield return m_waitTime;
         }
@@ -150,6 +188,14 @@ public class EnemyAircraftAiInput : MonoBehaviour
             m_state = State.Flee;
     }
 
+    private void CheckWhiskers()
+    {
+        if(m_bDoAvoid)
+        {
+            //Whiskers are colliding with something. Set state
+            m_state = State.Avoid;
+        }
+    }
 
     private void CheckOrientation()
     {
@@ -270,6 +316,27 @@ public class EnemyAircraftAiInput : MonoBehaviour
         m_v = Mathf.Clamp(m_v, -1f, 1f);
     }
 
+    private void PitchToAvoid(bool pitchUp)
+    {
+        //if (m_bankAngle < m_bankAngleMinMaxForPitching.x || m_bankAngle > m_bankAngleMinMaxForPitching.y)
+        //{
+        //    print("returning from pitch to avoid early 0");
+        //    m_v = 0;
+        //    return;
+        //}
+
+        if (pitchUp)
+            m_v = -1.0f; //change this to increments for smoothing?
+        else
+            m_v = 1.0f;
+
+        //if (m_v > 0 && m_pitchAngle > m_pitchAngleMinMax.y)
+        //    m_v = 0;
+        //else if (m_v < 0 && m_pitchAngle < m_pitchAngleMinMax.x)
+        //    m_v = 0;
+
+        m_v = Mathf.Clamp(m_v, -1.0f, 1.0f);
+    }
 
     private void CheckAltitude()
     {
@@ -360,6 +427,46 @@ public class EnemyAircraftAiInput : MonoBehaviour
         FlattenRoll();
     }
 
+    private void UpdateAvoid()
+    {
+        float angleToUp = Vector3.Angle(m_cWhiskerData.safeVector, transform.up);
+
+        if (angleToUp <= 90.0f)
+        {
+            //closer to the up vector, rotate towards transform.up
+            float rollAmount = -angleToUp;
+
+            if (Vector3.Angle(m_cWhiskerData.safeVector, transform.right) < 90)
+                rollAmount = -rollAmount;
+            rollAmount += m_bankAngle;
+
+            BankAngleToAimFor(rollAmount);
+            SetHorizontal();
+            
+            if (angleToUp <= 45.0f) //Start pitching when within 45 degrees of the desired safe vector
+                PitchToAvoid(true);
+        }
+        else
+        {
+            float angleToDown = Vector3.Angle(m_cWhiskerData.safeVector, -transform.up);
+            if (angleToDown <= 90.0f)
+            {
+                //closer to the down vector, rotate towards transform.up
+                float rollAmount = -angleToDown;
+
+                if (Vector3.Angle(m_cWhiskerData.safeVector, transform.right) > 90)
+                    rollAmount = -rollAmount;
+
+                rollAmount += m_bankAngle;
+
+                BankAngleToAimFor(rollAmount);
+                SetHorizontal();
+                
+                if (angleToDown <= 45.0f) //Start pitching when within 45 degrees of the desired safe vector
+                    PitchToAvoid(false);
+            }
+        }
+    }
 
     private void FlattenPitch()
     {
@@ -381,6 +488,30 @@ public class EnemyAircraftAiInput : MonoBehaviour
         SetHorizontal();
     }
 
+    private void OnWhiskerSet(AircraftWhiskerInfo info)
+    {
+        
+        m_cWhiskerData = info;
+        if (info.isActive)
+        {
+            m_bDoAvoid = true;
+            StopCoroutine("StartResetWait"); //if whiskers become active during reset wait, then stop the routine
+            m_bAvoidResetWait = false;
+        }
+        if (info.isActive == false && m_bDoAvoid && !m_bAvoidResetWait)
+        {
+            m_bAvoidResetWait = true;
+            StartCoroutine(StartResetWait());
+        }
+    }
+
+    //Allow the plane to keep tracking in the current direction until post avoid delay is over, this prevents the plane from getting extremely close to object and blowing up
+    private IEnumerator StartResetWait()
+    {
+        yield return new WaitForSeconds(m_postAvoidDelay);
+        m_bAvoidResetWait = false;
+        m_bDoAvoid = false;
+    }
 
     private enum State
     {
@@ -388,5 +519,6 @@ public class EnemyAircraftAiInput : MonoBehaviour
         Chase = 1,
         Evade = 2,
         Flee = 3,
+        Avoid = 4,
     }
 }
