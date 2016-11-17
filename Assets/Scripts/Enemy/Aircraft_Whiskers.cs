@@ -34,7 +34,7 @@ public class Aircraft_Whiskers : RaycastWhiskers {
 	void Update () {
         RaycastWhisker_Update();
         
-        if(bWhiskerCollision)
+        if(bWhiskerCollision && displayDebug)
             DrawSafeVector();
 	}
 
