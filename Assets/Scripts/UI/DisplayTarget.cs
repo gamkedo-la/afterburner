@@ -222,7 +222,8 @@ public class DisplayTarget : MonoBehaviour {
             //Reset Previous Target back to Enemy Layer
             ChangeLayersRecursively(enemies[targetIndex].transform, Target, Enemy);
 
-            float lowestMagnitude = direction.magnitude;
+			// previous approach, selected physically nearest irrespective of facing
+            /* float lowestMagnitude = direction.magnitude;
 
             for (int key = 0; key < enemies.Count; key++)
             {
@@ -232,7 +233,21 @@ public class DisplayTarget : MonoBehaviour {
                     lowestMagnitude = direction.magnitude;
                     targetIndex = key;
                 }
-            }
+            }*/
+			// new approach, selects target most directly in front of nose cone
+			float nearestAngle = 180.0f;
+			for (int key = 0; key < enemies.Count; key++)
+			{
+				float nextAng = 
+					Quaternion.Angle(
+						Quaternion.LookRotation(enemies[key].transform.position - playerTransform.position),
+						Quaternion.LookRotation(playerTransform.forward));
+				if (nextAng < nearestAngle)
+				{
+					nearestAngle = nextAng;
+					targetIndex = key;
+				}
+			}		
 
             //Set new Target to Target Layer
             ChangeLayersRecursively(enemies[targetIndex].transform, Enemy, Target);

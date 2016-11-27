@@ -1,32 +1,15 @@
 fileFormatVersion: 2
-<<<<<<< HEAD
-guid: 7a989fca7f8a68e44b410acc2fe351c4
-timeCreated: 1479436918
-=======
-guid: 8b1ad89514509413aa0a86f1852b0dca
-timeCreated: 1480191590
->>>>>>> 89351e6cfdb89814fa94d649216fd8f3f17e1e90
+guid: 5094ac8e34d6f4ddd9c66747b0d7ff15
+timeCreated: 1480191589
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
   fileIDToRecycleName:
     100000: //RootNode
-    100002: Zeppelin_body
-    100004: Zeppelin_cockpit
-    100006: Zeppelin_tail_fin
     400000: //RootNode
-    400002: Zeppelin_body
-    400004: Zeppelin_cockpit
-    400006: Zeppelin_tail_fin
-    2300000: Zeppelin_body
-    2300002: Zeppelin_cockpit
-    2300004: Zeppelin_tail_fin
-    3300000: Zeppelin_body
-    3300002: Zeppelin_cockpit
-    3300004: Zeppelin_tail_fin
-    4300000: Zeppelin_cockpit
-    4300002: Zeppelin_tail_fin
-    4300004: Zeppelin_body
+    2300000: //RootNode
+    3300000: //RootNode
+    4300000: Cone_001
     7400000: Default Take
     9500000: //RootNode
   materials:
