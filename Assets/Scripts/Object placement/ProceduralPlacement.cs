@@ -86,11 +86,13 @@ public class ProceduralPlacement : MonoBehaviour
 
         TimePlacementFinished = Time.time;
 
-        //print(string.Format("Placement finshed at: {0}", TimePlacementFinished));
-    }
+		//print(string.Format("Placement finshed at: {0}", TimePlacementFinished));
+		Debug.Log(m_mapGenerator.uniformScale + ", " + MapGenerator.MapChunkSize);
+
+	}
 
 
-    private void PlaceMainTarget()
+	private void PlaceMainTarget()
     {
         Random.InitState(m_seed);
     
@@ -458,9 +460,9 @@ public class ProceduralPlacement : MonoBehaviour
 
             float heightDifference = boundsData.HeightDifference();
 
-            float y = rigidbody == null || rigidbody.useGravity == false
-                ? boundsData.minTerrainHeight
-                : boundsData.maxTerrainHeight + 0.5f * maxHeightDifference;
+			float y = rigidbody == null || rigidbody.useGravity == false
+					? boundsData.minTerrainHeight
+					: boundsData.maxTerrainHeight;// + 0.5f * maxHeightDifference;
 
             success = heightDifference <= maxHeightDifference  
                 && boundsData.minTerrainHeight >= minHeight 
@@ -570,11 +572,11 @@ public class ProceduralPlacement : MonoBehaviour
         corner4 = trialPosition + originToCorner4;
         centre = trialPosition + originToCentre;
 
-        float terrainHeightCorner1 = m_mapGenerator.GetTerrainHeight(corner1.x, corner1.z);
-        float terrainHeightCorner2 = m_mapGenerator.GetTerrainHeight(corner2.x, corner2.z);
-        float terrainHeightCorner3 = m_mapGenerator.GetTerrainHeight(corner3.x, corner3.z);
-        float terrainHeightCorner4 = m_mapGenerator.GetTerrainHeight(corner4.x, corner4.z);
-        float terrainHeightCentre = m_mapGenerator.GetTerrainHeight(centre.x, centre.z);
+        float terrainHeightCorner1 = m_mapGenerator.getRealHeight(corner1.x, corner1.z);
+        float terrainHeightCorner2 = m_mapGenerator.getRealHeight(corner2.x, corner2.z);
+        float terrainHeightCorner3 = m_mapGenerator.getRealHeight(corner3.x, corner3.z);
+        float terrainHeightCorner4 = m_mapGenerator.getRealHeight(corner4.x, corner4.z);
+        float terrainHeightCentre = m_mapGenerator.getRealHeight(centre.x, centre.z);
 
         float minTerrainHeight = Mathf.Min(terrainHeightCorner1, terrainHeightCorner2, terrainHeightCorner3, terrainHeightCorner4, terrainHeightCentre);
         float maxTerrainHeight = Mathf.Max(terrainHeightCorner1, terrainHeightCorner2, terrainHeightCorner3, terrainHeightCorner4, terrainHeightCentre);
