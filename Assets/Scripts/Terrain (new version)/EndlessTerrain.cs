@@ -317,6 +317,7 @@ public class EndlessTerrain : MonoBehaviour
 
             m_meshObject = new GameObject("Terrain chunk");
             m_meshObject.tag = Tags.Ground;
+            m_meshObject.layer = 19;
             m_meshRenderer = m_meshObject.AddComponent<MeshRenderer>();
             m_meshFilter = m_meshObject.AddComponent<MeshFilter>();
             m_meshCollider = m_meshObject.AddComponent<MeshCollider>();
