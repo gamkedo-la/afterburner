@@ -89,11 +89,69 @@ public class MapGenerator : MonoBehaviour
 
 	public float getRealHeight(float x, float z)
 	{
+		LocalTileInfo info = getLocalTileInfo(x, z);
+
+		if (info.aboveMidLine)
+		{
+			info.y1 = GetTerrainHeight(info.closeX, info.farZ);
+			Vector2 intraTilePoint = new Vector2(info.intraTileX, info.intraTileZ);
+
+			//lerps the appropiate distance along the leg of the triangle parallel to the x-axis
+			float q = Mathf.Lerp(info.y1, info.y2, intraTilePoint.x / intraTilePoint.y);
+			return Mathf.Lerp(info.y0, q, info.intraTileZ * info.inverseScale); //lerps along the line through the point. scaled to y
+		}
+		else
+		{
+			float y3 = GetTerrainHeight(info.farX, info.closeZ);
+			Vector2 negativeIntraTilePoint = new Vector2(info.scale - info.intraTileX, info.scale - info.intraTileZ);
+
+			//lerps the appropiate distance along the leg of the triangle parallel to the x-axis
+			float q = Mathf.Lerp(y3, info.y0, negativeIntraTilePoint.x / negativeIntraTilePoint.y);
+			return Mathf.Lerp(info.y2, q, 1 - info.intraTileZ * info.inverseScale); //lerps along the line through the point. scaled to y
+		}
+	}
+
+	public Vector3 GetTerrainNormal(float x, float z)
+	{
+		LocalTileInfo info = getLocalTileInfo(x, z);
+
+		Vector3 firstCross, secondCross;
+
+		//Two of three corner vectors
+		Vector3 v0 = new Vector3(info.closeX, info.y0, info.closeZ);
+		Vector3 v2 = new Vector3(info.farX, info.y2, info.farZ);
+
+		if (info.aboveMidLine)
+		{
+			info.y1 = GetTerrainHeight(info.closeX, info.farZ);
+
+			Vector3 v1 = new Vector3(info.closeX, info.y1, info.farZ);
+
+			firstCross = v2 - v1;
+			secondCross = v0 - v1;
+		}
+		else
+		{
+			info.y3 = GetTerrainHeight(info.farX, info.closeZ);
+
+			Vector3 v3 = new Vector3(info.farX, info.y3, info.closeZ);
+
+			firstCross = v0 - v3;
+			secondCross = v2 - v3;
+		}
+
+		return Vector3.Cross(firstCross, secondCross).normalized;
+	}
+
+	private LocalTileInfo getLocalTileInfo(float x, float z)
+	{
+		LocalTileInfo info = new LocalTileInfo();
+
 		float scale = uniformScale * 2; //uniformScale must be muliplied by 2 or everything breaks
 		float inverseScale = 1 / scale; //for optimization (division is slow)
 
 		//Coordinates of the sides of the square
-    float closeX = Mathf.Floor(x * inverseScale) * scale;
+		float closeX = Mathf.Floor(x * inverseScale) * scale;
 		float closeZ = Mathf.Floor(z * inverseScale) * scale;
 		float farX = (Mathf.Floor(x * inverseScale) + 1) * scale;
 		float farZ = (Mathf.Floor(z * inverseScale) + 1) * scale;
@@ -106,7 +164,7 @@ public class MapGenerator : MonoBehaviour
 		intraTileZ = intraTileZ >= 0 ? intraTileZ : scale + intraTileZ;
 
 		//is the position inside the tile above the x = z dividing line?
-		bool aboveMidLine = intraTileX == 0 ? true : (intraTileZ / intraTileX > 1 ? true : false);
+		info.aboveMidLine = intraTileX == 0 ? true : (intraTileZ / intraTileX > 1 ? true : false);
 
 		// y map:
 		// ^   1 _____ 2
@@ -116,28 +174,31 @@ public class MapGenerator : MonoBehaviour
 		// |
 		// +--+X--->
 
-		float y0 = GetTerrainHeight(closeX, closeZ);
-		float y2 = GetTerrainHeight(farX, farZ);
+		info.y0 = GetTerrainHeight(closeX, closeZ);
+		info.y2 = GetTerrainHeight(farX, farZ);
 
-		if (aboveMidLine)
-		{
-			float y1 = GetTerrainHeight(closeX, farZ);
-			Vector2 intraTilePoint = new Vector2(intraTileX, intraTileZ);
+		info.scale = scale;
+		info.inverseScale = inverseScale;
 
-			//lerps the appropiate distance along the leg of the triangle parallel to the x-axis
-			float q = Mathf.Lerp(y1, y2, intraTilePoint.x / intraTilePoint.y);
-			return Mathf.Lerp(y0, q, intraTileZ * inverseScale); //lerps along the line through the point. scaled to y
-		}
-		else
-		{
-			float y3 = GetTerrainHeight(farX, closeZ);
-			Vector2 negativeIntraTilePoint = new Vector2(scale - intraTileX, scale - intraTileZ);
+		info.closeX = closeX;
+		info.closeZ = closeZ;
+		info.farX = farX;
+		info.farZ = farZ;
 
-			//lerps the appropiate distance along the leg of the triangle parallel to the x-axis
-			float q = Mathf.Lerp(y3, y0, negativeIntraTilePoint.x / negativeIntraTilePoint.y);
-			return Mathf.Lerp(y2, q, 1 - intraTileZ * inverseScale); //lerps along the line through the point. scaled to y
-		}
+		info.intraTileX = intraTileX;
+		info.intraTileZ = intraTileZ;
+
+		return info;
 	}
+
+	private class LocalTileInfo
+	{
+		public float inverseScale, scale;
+    public float closeX, farX, closeZ, farZ;
+		public float y0, y1, y2, y3;
+		public float intraTileX, intraTileZ;
+		public bool aboveMidLine;
+  }
 
 	public void DrawMapInEditor()
 	{
