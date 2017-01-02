@@ -24,7 +24,7 @@ public class PlayerHealth : MonoBehaviour, IDamageable
     
     [SerializeField] float m_rigidBodyDragInWater = 3f;
     [SerializeField] Transform[] m_objectsToDetatchOnDeath;
-    [SerializeField] float m_canDamageResetTime = 0.15f;
+    [SerializeField] float m_canDamageResetTime = 20.25f;
     [SerializeField] int m_minDamageForReset = 100;
     [SerializeField] float m_maxSpinRateOnDeath = 30f;  
 

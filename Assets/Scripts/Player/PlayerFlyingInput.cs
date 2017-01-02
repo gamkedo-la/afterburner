@@ -41,8 +41,8 @@ public class PlayerFlyingInput : MonoBehaviour
 		float h;
 		float a;
 
-		//if (mouseControl)
-		if (false)
+		if (mouseControl)
+		//if (false)
 		{
 			/*
 			Vector2 mouseVector = new Vector2(Mathf.Clamp(Input.mousePosition.y / Screen.height, 0f, 1f) * 2 - 1,
