@@ -16,10 +16,13 @@ public class CameraSwitcher : MonoBehaviour
     private int m_index;
     private bool m_inputAxisInUse; 
 
+	private GameObject cockpitInnerView; // currently hacked in, only used for 90s X-29
+
 
     void Awake()
     {
         m_cameraTransform = Camera.main.transform;
+		cockpitInnerView = GameObject.Find("90s-cockpit");
     }
 
 	
@@ -66,6 +69,10 @@ public class CameraSwitcher : MonoBehaviour
         {
             m_index = index;
             var newTransform = m_cameraPositions[m_index];
+
+			if(cockpitInnerView != null) {
+				cockpitInnerView.SetActive(index == 0);
+			}
 
             m_cameraTransform.position = newTransform.position;
             m_cameraTransform.rotation = newTransform.rotation;
