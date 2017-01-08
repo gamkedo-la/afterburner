@@ -6,8 +6,9 @@ using System.Collections.Generic;
 public class HugTerrain : MonoBehaviour
 {
 	//Terribly implemented debug code for a sphere grid
-	//public float sphereOffsetX = 0.0f, sphereOffsetZ = 0.0f;
-	//private List<GameObject> sphereGrid = new List<GameObject>();
+	public float sphereOffsetX = 0.0f, sphereOffsetZ = 0.0f;
+	private List<GameObject> sphereGrid = new List<GameObject>();
+	public GameObject sphereStandin;
 
 	private MapGenerator m_mapGenerator;
 	private float scale;
@@ -30,7 +31,7 @@ public class HugTerrain : MonoBehaviour
 		Debug.Log(m_mapGenerator.uniformScale + ", " + MapGenerator.MapChunkSize);
 		scale = m_mapGenerator.uniformScale * 2;
 
-		//makeSphereGrid(); //Debug code to make a grid of spheres hug the terrain
+		makeSphereGrid(); //Debug code to make a grid of spheres hug the terrain
 	}
 
 	// Update is called once per frame
@@ -38,15 +39,35 @@ public class HugTerrain : MonoBehaviour
 	{
 		#region sphereGrid
 		//Reposition terrain hugging sphere grid
-		/*
-		for(int i = 0; i < sphereGrid.Count; i++)
+
+		for (int i = 0; i < sphereGrid.Count; i++)
 		{
+			float x = (i % 21) * scale - 10 + sphereOffsetX;
+			float z = (i / 21) * scale - 10 + sphereOffsetZ;
+			sphereGrid[i].transform.position = new Vector3(x, m_mapGenerator.getRealHeight(x, z), z);
+			sphereGrid[i].transform.rotation = Quaternion.LookRotation(m_mapGenerator.GetTerrainNormal(x, z));
+			sphereGrid[i].transform.rotation *= Quaternion.AngleAxis(90, Vector3.right);
+
+			Vector2 facing = new Vector2(sphereGrid[i].transform.forward.x, sphereGrid[i].transform.forward.z).normalized;
+			Vector3 cross = Vector3.Cross(facing, Vector2.up);
+      float angle = Vector2.Angle(Vector2.up, facing);
+			if(cross.z < 0)
+			{
+				sphereGrid[i].transform.rotation *= Quaternion.AngleAxis(angle, Vector3.up);
+			}
+			else
+			{
+				sphereGrid[i].transform.rotation *= Quaternion.AngleAxis(-angle, Vector3.up);
+			}
+
+			/*
 			sphereGrid[i].transform.position = new Vector3(
-				sphereGrid[i].transform.position.x,
-				m_mapGenerator.GetTerrainHeight(sphereGrid[i].transform.position.x + sphereOffsetX, sphereGrid[i].transform.position.z + sphereOffsetZ),
-				sphereGrid[i].transform.position.z);
+				sphereGrid[i].transform.position.x + sphereOffsetX,
+				m_mapGenerator.getRealHeight(sphereGrid[i].transform.position.x + sphereOffsetX, sphereGrid[i].transform.position.z + sphereOffsetZ),
+				sphereGrid[i].transform.position.z + sphereOffsetZ);
+			*/
 		}
-		*/
+		sphereOffsetX -= 1;
 		#endregion sphereGrid
 
 		transform.position = new Vector3(transform.position.x, getRealHeight(transform.position.x, transform.position.z), transform.position.z);
@@ -99,7 +120,7 @@ public class HugTerrain : MonoBehaviour
 		}
 	}
 
-	/* //Create terrain hugging sphere grid
+	//Create terrain hugging sphere grid
 	void makeSphereGrid()
 	{
 		//float gridScale = m_mapGenerator.uniformScale * 2;
@@ -107,15 +128,16 @@ public class HugTerrain : MonoBehaviour
 		{
 			for(int z = -10; z <= 10; z++)
 			{
-				GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-				sphere.transform.position = new Vector3(x * scale,
+				//GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+				GameObject sphere = Instantiate(sphereStandin);
+        sphere.transform.position = new Vector3(x * scale,
 					                                      m_mapGenerator.GetTerrainHeight(x * scale, z * scale),
 					                                      z * scale);
 				sphereGrid.Add(sphere);
 			}
 		}
 	}
-	*/
+	
 
 	//tx is the x component of the lerp	
 	float findTx(Vector2 a, Vector2 p)

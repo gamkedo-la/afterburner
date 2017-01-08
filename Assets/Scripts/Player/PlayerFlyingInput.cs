@@ -33,7 +33,8 @@ public class PlayerFlyingInput : MonoBehaviour
 		{
 			mouseControl = false;
 		}
-		else if (prevMouseX != Input.mousePosition.x || prevMouseY != Input.mousePosition.y)
+		else if (prevMouseX > Input.mousePosition.x + 1 || prevMouseY > Input.mousePosition.y + 1
+			    || prevMouseX < Input.mousePosition.x - 1 || prevMouseY < Input.mousePosition.y - 1)
 		{
 			mouseControl = true;
 		}
@@ -94,6 +95,9 @@ public class PlayerFlyingInput : MonoBehaviour
 			h = Input.GetAxis(Horizontal);
 			a = Input.GetAxis(Acceleration);
 		}
+
+		prevMouseX = Input.mousePosition.x;
+		prevMouseY = Input.mousePosition.y;
 
 		//Input is already inverted, so don't change it if controls are set to invert
 		v = invert ? v : -v;
