@@ -75,6 +75,9 @@ public class DisplayTarget : MonoBehaviour {
         updateBorderColor();
 
         targetSelectIcon = GameObject.Find("Target Select Icon");
+		if(targetSelectIcon == null) {
+			targetSelectIcon = GameObject.Find("Target Icon");
+		}
 
         targetSelectAudioSource = GetComponent<AudioSource>();
 

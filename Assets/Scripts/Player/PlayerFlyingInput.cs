@@ -17,7 +17,6 @@ public class PlayerFlyingInput : MonoBehaviour
 
 	void Awake()
 	{
-		Cursor.lockState = CursorLockMode.Locked;
 		m_flyingControlScript = GetComponent<FlyingControl>();
 		mouseControl = false;
 		prevVerticalAxis = 0f;
@@ -27,6 +26,9 @@ public class PlayerFlyingInput : MonoBehaviour
 		invert = true;
 	}
 
+	void Start() {
+		Cursor.lockState = CursorLockMode.Locked;
+	}
 
 	void Update()
 	{
