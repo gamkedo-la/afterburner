@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 [RequireComponent(typeof(ShootingControl))]
@@ -10,6 +11,9 @@ public class PlayerShootingInput : MonoBehaviour
 	private GameObject m_rocketPrefab;
 	private FlyingControl m_flyingControlScript;
 	private ShootingControl m_shootingControlScript;
+
+	private int m_rocketAmmo = 4;
+	private Text rocketAmmoText;
 
 	private float m_rocketCooldown = 1.0f;
 	private float m_timeSinceRocketFired;
@@ -26,8 +30,21 @@ public class PlayerShootingInput : MonoBehaviour
 			m_targetInfo = targetTrackerGO.GetComponent<DisplayTarget>();
 			m_rocketPrefab = (GameObject)Resources.Load("GuidedMissile");
 		}
+		GameObject missileAmmoGO = (GameObject)GameObject.Find("Missile Label");
+		if (missileAmmoGO)
+		{
+			if(targetTrackerGO == null) {
+				missileAmmoGO.SetActive(false);
+			} else {
+				rocketAmmoText = missileAmmoGO.GetComponent<Text>();
+				RocketAmmoUpdate();
+			}
+		}
 	}
 
+	void RocketAmmoUpdate() {
+		rocketAmmoText.text = "Missiles: " + m_rocketAmmo;
+	}
 
 	void Update()
 	{
@@ -36,9 +53,11 @@ public class PlayerShootingInput : MonoBehaviour
 		if ((Input.GetAxisRaw(Shoot) == 1 || Input.GetAxisRaw(Shoot) == -1) && Time.timeScale > 0)
 			m_shootingControlScript.Shoot();
 
-		if (m_targetInfo && (Input.GetAxisRaw(Rocket) == 1 || Input.GetAxisRaw(Rocket) == -1) && Time.timeScale > 0
+		if (m_rocketAmmo > 0 && (Input.GetAxisRaw(Rocket) == 1 || Input.GetAxisRaw(Rocket) == -1) && Time.timeScale > 0
       && (m_timeSinceRocketFired > m_rocketCooldown))
 		{
+			m_rocketAmmo--;
+			RocketAmmoUpdate();
 			m_timeSinceRocketFired = 0.0f;
 
 			GameObject rocketGO = (GameObject)GameObject.Instantiate(m_rocketPrefab,
@@ -48,7 +67,9 @@ public class PlayerShootingInput : MonoBehaviour
 			if (m_flyingControlScript != null)
 				lotScript.rocketSpeed = m_flyingControlScript.ForwardVelocity.magnitude;
 
-			lotScript.chaseTarget = m_targetInfo.returnCurrentTarget();
+			if(m_targetInfo) {
+				lotScript.chaseTarget = m_targetInfo.returnCurrentTarget();
+			}
 		}
 	}
 }

@@ -26,6 +26,9 @@ public class PlayerFlyingInput : MonoBehaviour
 		invert = true;
 	}
 
+	void Start() {
+		Cursor.lockState = CursorLockMode.Locked;
+	}
 
 	void Update()
 	{
@@ -54,8 +57,8 @@ public class PlayerFlyingInput : MonoBehaviour
 			}
 			*/
 
-			float mouseX = Mathf.Clamp(Input.mousePosition.y / Screen.height, 0f, 1f) * 2 - 1;
-			float mouseY = Mathf.Clamp(Input.mousePosition.x / Screen.width, 0f, 1f) * 2 - 1;
+			float mouseX = Mathf.Clamp(Input.GetAxis("Mouse Y")*8.0f, -1f, 1f);
+			float mouseY = Mathf.Clamp(Input.GetAxis("Mouse X")*8.0f, -1f, 1f);
 
 
 			float sharpness = 0.5f;
