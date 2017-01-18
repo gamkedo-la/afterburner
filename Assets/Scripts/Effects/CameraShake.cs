@@ -23,8 +23,6 @@ public class CameraShake : MonoBehaviour
 	{
 		float elapsed = 0.0f;
 
-		//Quaternion originalCamRot = Camera.main.transform.localRotation;
-
 		while (elapsed < duration)
 		{
 			elapsed += Time.deltaTime;

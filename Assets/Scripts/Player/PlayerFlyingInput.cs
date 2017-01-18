@@ -13,7 +13,7 @@ public class PlayerFlyingInput : MonoBehaviour
 	private bool mouseControl;
 	private float prevVerticalAxis, prevHorizontalAxis;
 	private float prevMouseX, prevMouseY;
-	private bool invert;
+	private static bool invert = true;
 
 	void Awake()
 	{
@@ -23,7 +23,7 @@ public class PlayerFlyingInput : MonoBehaviour
 		prevHorizontalAxis = 0f;
 		prevMouseX = 0f;
 		prevMouseY = 0f;
-		invert = true;
+//		invert = true;
 	}
 		
 	void Update()
