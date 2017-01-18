@@ -110,6 +110,7 @@ public class GameController : MonoBehaviour
 
     public void QuitGame()
     {
+        PlayerPrefs.Save();
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
