@@ -139,7 +139,7 @@ public class GameController : MonoBehaviour
     private void MusicFadeDown()
     {
         //print("Music fade down");
-
+				
         if (m_musicMuted != null)
             m_musicMuted.TransitionTo(m_musicFadeTime);
     }
@@ -148,7 +148,7 @@ public class GameController : MonoBehaviour
     private void MusicFadeUp()
     {
         //print("Music fade up");
-
+				
         if (m_musicFullVolume != null)
             m_musicFullVolume.TransitionTo(m_musicFadeTime);
     }
