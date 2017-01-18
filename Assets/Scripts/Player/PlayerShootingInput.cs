@@ -43,7 +43,7 @@ public class PlayerShootingInput : MonoBehaviour
 	}
 
 	void RocketAmmoUpdate() {
-		rocketAmmoText.text = "Missiles: " + m_rocketAmmo;
+		rocketAmmoText.text = "Missile:" + m_rocketAmmo + " (E)";
 	}
 
 	void Update()
