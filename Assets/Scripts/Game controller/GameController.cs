@@ -12,7 +12,7 @@ public class GameController : MonoBehaviour
     [SerializeField] AudioMixerSnapshot m_musicFullVolume;
     [SerializeField] AudioMixerSnapshot m_musicMuted;
 
-    [SerializeField] float m_musicFadeTime = 2f;
+    [SerializeField] float m_musicFadeTime = 1f;
 
     private Camera m_mainCamera;
     private bool m_freeCameraEnabled = false;

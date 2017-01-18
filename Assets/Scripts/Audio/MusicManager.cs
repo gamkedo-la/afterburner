@@ -13,9 +13,11 @@ public class MusicManager : MonoBehaviour
 	[SerializeField] AudioSource musicTrack2067;
 	[SerializeField] AudioSource musicTrack2142;
 
+	private int currentTrack;
 
 	void Awake() 
 	{
+		currentTrack = 0;
         if (instance == null)
 		{
             //print("Music instance null: starting new one: " + this.music.name);
@@ -43,7 +45,13 @@ public class MusicManager : MonoBehaviour
 
 	public void swapTrack(int track)
 	{
-		Debug.Log("Swapping to track: " + track);
+		if(currentTrack == track)
+		{
+			return;
+		}
+
+		currentTrack = track;
+
 		instance.musicLoop.Stop();
 		switch(track)
 		{
