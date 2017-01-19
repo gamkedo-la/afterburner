@@ -337,7 +337,7 @@ public class EnemyHealth : MonoBehaviour, IDamageable
         {
             m_aliveModel.SetActive(false);
             m_deadModel.SetActive(true);
-Debug.Log("ded");
+//Debug.Log("ded");
             for (int i = 0; i < m_objectsToTransferToDeadModelOnDeath.Length; i++)
             {
                 var objectToTransfer = m_objectsToTransferToDeadModelOnDeath[i];

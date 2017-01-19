@@ -227,12 +227,15 @@ public class ProceduralPlacement : MonoBehaviour
 					{
 						var enemyAiFlightInput = airGameObject.GetComponent<EnemyAircraftAiInput>();
 						var enemyAiShootingInput = airGameObject.GetComponent<EnemyShootingAiInput>();
+						var enemyFlightControl = airGameObject.GetComponent<FlyingControl>();
 
 						if (enemyAiFlightInput != null)
 							enemyAiFlightInput.enabled = false;
 
 						if (enemyAiShootingInput != null)
 							enemyAiShootingInput.enabled = false;
+
+						enemyFlightControl.newFlightMechanics = false;
 					}
 				}
 			}
