@@ -5,27 +5,20 @@ using System.Collections;
 [RequireComponent(typeof(ShootingControl))]
 public class PlayerShootingInput : MonoBehaviour
 {
-	private static readonly string Shoot = "Shoot", Rocket = "Rocket";
+	private static readonly string Shoot = "Shoot", Missile = "Rocket";
 
 	private DisplayTarget m_targetInfo;
-	private GameObject m_rocketPrefab;
 	private FlyingControl m_flyingControlScript;
 	private ShootingControl m_shootingControlScript;
 
-	private int m_rocketAmmo = 4;
-	private Text rocketAmmoText;
+	private Text missileAmmoText;
 
-	private float m_rocketCooldown = 1.0f;
-	private float m_timeSinceRocketFired;
-	private int m_numMissileSpawnPoints;
-	private int m_missileSpawnPointIndex;
-	[SerializeField]
-	Transform[] m_missileSpawnPoints;
-
+	private float lockOnTimer;
+	private Transform playerTransform;
+	private Transform target;
 
 	void Start()
 	{
-		m_timeSinceRocketFired = 0.0f;
 		m_shootingControlScript = GetComponent<ShootingControl>();
 		m_flyingControlScript = GetComponent<FlyingControl>();
 
@@ -33,7 +26,6 @@ public class PlayerShootingInput : MonoBehaviour
 		if(targetTrackerGO)
 		{
 			m_targetInfo = targetTrackerGO.GetComponent<DisplayTarget>();
-			m_rocketPrefab = (GameObject)Resources.Load("GuidedMissile");
 		}
 		GameObject missileAmmoGO = (GameObject)GameObject.Find("Missile Label");
 		if(missileAmmoGO)
@@ -44,57 +36,76 @@ public class PlayerShootingInput : MonoBehaviour
 			}
 			else
 			{
-				rocketAmmoText = missileAmmoGO.GetComponent<Text>();
-				RocketAmmoUpdate();
+				missileAmmoText = missileAmmoGO.GetComponent<Text>();
+				MissileAmmoUpdate();
 			}
 		}
+
+		lockOnTimer = 0f;
+		playerTransform = FindObjectOfType<PlayerFlyingInput>().GetComponent<Transform>();
 	}
 
-	void Awake()
+	void MissileAmmoUpdate()
 	{
-		if(m_missileSpawnPoints != null) //Prevents errors on menus
-		{
-			m_numMissileSpawnPoints = m_missileSpawnPoints.Length;
-			m_missileSpawnPointIndex = 0;
-		}
-  }
-
-	void RocketAmmoUpdate()
-	{
-		rocketAmmoText.text = "Missile:" + m_rocketAmmo + " (E)";
+		Debug.Log("Ammo update: " + m_shootingControlScript.getMissileAmmo());
+		missileAmmoText.text = "Missile:" + m_shootingControlScript.getMissileAmmo() + " (E)";
 	}
 
 	void Update()
 	{
-		m_timeSinceRocketFired += Time.deltaTime;
 
 		if((Input.GetAxisRaw(Shoot) == 1 || Input.GetAxisRaw(Shoot) == -1) && Time.timeScale > 0)
-			m_shootingControlScript.Shoot();
-
-		if(m_rocketAmmo > 0 && (Input.GetAxisRaw(Rocket) == 1 || Input.GetAxisRaw(Rocket) == -1) && Time.timeScale > 0
-			&& (m_timeSinceRocketFired > m_rocketCooldown))
 		{
-			Transform spawnPoint = m_missileSpawnPoints[m_missileSpawnPointIndex];
-
-			m_rocketAmmo--;
-			RocketAmmoUpdate();
-			m_timeSinceRocketFired = 0.0f;
-
-			GameObject rocketGO = (GameObject)GameObject.Instantiate(m_rocketPrefab,
-				spawnPoint.position, spawnPoint.rotation);
-			LockOnTarget lotScript = rocketGO.GetComponent<LockOnTarget>();
-
-			if(m_flyingControlScript != null)
-				lotScript.rocketSpeed = m_flyingControlScript.ForwardVelocity.magnitude;
-
-			if(m_targetInfo)
-			{
-				lotScript.chaseTarget = m_targetInfo.returnCurrentTarget();
-			}
-
-			m_missileSpawnPointIndex++;
-			m_missileSpawnPointIndex = m_missileSpawnPointIndex % m_numMissileSpawnPoints;
-
+			m_shootingControlScript.Shoot();
 		}
+
+		if((Input.GetAxisRaw(Missile) == 1 || Input.GetAxisRaw(Missile) == -1) && Time.timeScale > 0 && lockedOn())
+		{
+			GameObject missile = m_shootingControlScript.Launch();
+			if(missile != null)
+			{
+				MissileAmmoUpdate(); //Update ammo GUI number
+
+				//Pass the missile the current target
+				LockOnTarget lotScript = missile.GetComponent<LockOnTarget>();
+
+				if(m_flyingControlScript != null)
+					lotScript.rocketSpeed = m_flyingControlScript.ForwardVelocity.magnitude;
+
+				if(m_targetInfo)
+				{
+					lotScript.chaseTarget = m_targetInfo.returnCurrentTarget();
+				}
+				//Target is passed
+			}
+		}
+	}
+
+	void LateUpdate()
+	{
+		target = m_targetInfo.returnCurrentTarget().transform;
+
+		if(target != null)
+		{
+			float targetAngle = Quaternion.Angle(
+				Quaternion.LookRotation(target.transform.position - playerTransform.position),
+				Quaternion.LookRotation(playerTransform.forward));
+
+			float targetDistance = Vector3.Distance(target.transform.position, playerTransform.position);
+
+			if(targetAngle < m_shootingControlScript.lockOnAngle && targetDistance < m_shootingControlScript.lockOnRange)
+			{
+				lockOnTimer += Time.deltaTime;
+			}
+			else
+			{
+				lockOnTimer = 0f;
+			}
+		}
+	}
+
+	public bool lockedOn()
+	{
+		return lockOnTimer > m_shootingControlScript.timeToLockOn;
 	}
 }
