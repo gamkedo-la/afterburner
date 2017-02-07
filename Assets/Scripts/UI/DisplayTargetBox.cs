@@ -9,11 +9,12 @@ public class DisplayTargetBox : MonoBehaviour
 	public float scaleMultiplier = 1.0f;
 
 	public float minTargetBoxSize;
+	public float maxTargetBoxSize;
 
 	private Image targetBox;
-	private Image targetCircle;
+	private Image targetLock;
 	private RectTransform targetBoxRectTransform;
-	private RectTransform targetCircleRectTransform;
+	private RectTransform targetLockRectTransform;
 
 	private GameObject target;
 
@@ -23,10 +24,10 @@ public class DisplayTargetBox : MonoBehaviour
 	{
 		targetBox = GameObject.Find("Target Box").GetComponent<Image>();
 		targetBoxRectTransform = targetBox.GetComponent<RectTransform>();
-		targetCircle = GameObject.Find("Target Circle").GetComponent<Image>();
-    targetCircleRectTransform = targetCircle.GetComponent<RectTransform>();
-		displayTarget.Initialise();
-
+		targetLock = GameObject.Find("Target Lock").GetComponent<Image>();
+		targetLockRectTransform = targetLock.GetComponent<RectTransform>();
+    displayTarget.Initialise();
+		
 		shootingInput = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerShootingInput>();
 
 //		lockOnTimer = 0f;
@@ -71,15 +72,24 @@ public class DisplayTargetBox : MonoBehaviour
 			Rect worldBounds = GUIRectWithObject(target);
 
 			//Sets minimum size of target box so that it does not dissapear on the horizon
+
 			if(worldBounds.width < minTargetBoxSize)
 				worldBounds.width = minTargetBoxSize;
 
 			if(worldBounds.height < minTargetBoxSize)
 				worldBounds.height = minTargetBoxSize;
 
+			if(worldBounds.width > maxTargetBoxSize)
+				worldBounds.width = maxTargetBoxSize;
+
+			if(worldBounds.height > maxTargetBoxSize)
+				worldBounds.height = maxTargetBoxSize;
+
 			//Takes whichever value is larger, height or width, and sets the other one to it so that the box is always square
 			if(worldBounds.height > worldBounds.width)
+			{
 				worldBounds.width = worldBounds.height;
+			}
 			else
 			{
 				worldBounds.height = worldBounds.width;
@@ -91,20 +101,20 @@ public class DisplayTargetBox : MonoBehaviour
 
 			if(shootingInput.lockedOn())
 			{
-				targetCircle.enabled = true;
-				targetCircleRectTransform.sizeDelta = targetBoxRectTransform.sizeDelta;
-				targetCircleRectTransform.anchoredPosition3D = targetBoxRectTransform.anchoredPosition3D;
+				targetLock.gameObject.SetActive(true);
+				targetLockRectTransform.localScale = targetBoxRectTransform.sizeDelta / 100;
+				targetLockRectTransform.anchoredPosition3D = targetBoxRectTransform.anchoredPosition3D;
 			}
 			else
 			{
-				targetCircle.enabled = false;
+				targetLock.gameObject.SetActive(false);
 			}
 		}
 		else
 		{
 			//prevents target from showing up when it is offscreen
 			targetBox.enabled = false;
-			targetCircle.enabled = false;
+			targetLock.gameObject.SetActive(false);
 		}
 	}
 
@@ -118,7 +128,7 @@ public class DisplayTargetBox : MonoBehaviour
 		Vector3 ext = overallBounds.Value.extents;
 
 		Vector2[] extentPoints = new Vector2[8]
-{
+		{
 			Camera.main.WorldToScreenPoint(new Vector3(cen.x-ext.x, cen.y-ext.y, cen.z-ext.z)),
 			Camera.main.WorldToScreenPoint(new Vector3(cen.x+ext.x, cen.y-ext.y, cen.z-ext.z)),
 			Camera.main.WorldToScreenPoint(new Vector3(cen.x-ext.x, cen.y-ext.y, cen.z+ext.z)),
@@ -128,7 +138,7 @@ public class DisplayTargetBox : MonoBehaviour
 			Camera.main.WorldToScreenPoint(new Vector3(cen.x+ext.x, cen.y+ext.y, cen.z-ext.z)),
 			Camera.main.WorldToScreenPoint(new Vector3(cen.x-ext.x, cen.y+ext.y, cen.z+ext.z)),
 			Camera.main.WorldToScreenPoint(new Vector3(cen.x+ext.x, cen.y+ext.y, cen.z+ext.z))
-};
+		};
 
 		Vector2 min = extentPoints[0];
 		Vector2 max = extentPoints[0];

@@ -21,8 +21,9 @@ public class PlayerFlyingInput : MonoBehaviour
 		mouseControl = false;
 		prevVerticalAxis = 0f;
 		prevHorizontalAxis = 0f;
-		prevMouseX = 0f;
-		prevMouseY = 0f;
+		prevMouseX = Input.mousePosition.x;
+		prevMouseY = Input.mousePosition.y;
+
 		if(!invertLoaded)
 		{
 			invert = PlayerPrefs.GetInt("invert controls", 1) > 0 ? true : false;

@@ -35,7 +35,7 @@ public class EnemyHealth : MonoBehaviour, IDamageable
     [SerializeField] int m_minDamageForReset = 100;
     [SerializeField] float m_maxSpinRateOnDeath = 30f;
 
-    [SerializeField] bool m_allowKillKey;
+    [SerializeField] bool m_allowKillKey = false;
 
 	private int m_currentHealth;
     private bool m_dead;
@@ -151,7 +151,7 @@ public class EnemyHealth : MonoBehaviour, IDamageable
 
         var otherDamageScript = other.gameObject.GetComponentInParent<IDamageable>();
 
-        if (otherDamageScript != null)
+        if (otherDamageScript != null && !other.CompareTag(Tags.Bullet))
         {
             //print(string.Format("{0} causes {1} damage to {2}", name, m_damageCausedToOthers, other.name));
             otherDamageScript.Damage(m_damageCausedToOthers);

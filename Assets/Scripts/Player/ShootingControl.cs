@@ -35,8 +35,9 @@ public class ShootingControl : MonoBehaviour
 	private GameObject m_missilePrefab;
 
 	[SerializeField]
-	int m_missileAmmo = 4;
-	public float timeToLockOn = 4f, lockOnAngle = 20f, lockOnRange = 400f;
+	int m_missileAmmo = 8, missileDamage = 50;
+	public float timeToLockOn = 2f, lockOnAngle = 20f, lockOnRange = 400f;
+	
 
 	void Awake()
 	{
@@ -151,6 +152,9 @@ public class ShootingControl : MonoBehaviour
 
 			m_missileSpawnPointIndex++;
 			m_missileSpawnPointIndex = m_missileSpawnPointIndex % m_numMissileSpawnPoints;
+
+			//Set missile damage
+			missile.GetComponent<LockOnTarget>().setDamage(missileDamage);
 
 			return missile;
 		}
