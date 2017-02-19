@@ -10,7 +10,7 @@
 		_AlphaMask("Alpha Mask", 2D) = "white"
 	}
 
-		SubShader
+	SubShader
 	{
 		Tags{ "Queue" = "Background" "RenderType" = "Background" "PreviewType" = "Skybox" }
 		Cull Off ZWrite Off

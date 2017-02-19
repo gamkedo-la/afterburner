@@ -11,6 +11,10 @@ public class DisplayTargetBox : MonoBehaviour
 	public float minTargetBoxSize;
 	public float maxTargetBoxSize;
 
+	public AudioClip lockSound;
+	public float lockSoundVolume;
+  private bool lockSoundPlayed;
+
 	private Image targetBox;
 	private Image targetLock;
 	private RectTransform targetBoxRectTransform;
@@ -19,6 +23,8 @@ public class DisplayTargetBox : MonoBehaviour
 	private GameObject target;
 
 	private PlayerShootingInput shootingInput;
+
+	private AudioSource targetSelectAudioSource;
 
 	void Start()
 	{
@@ -30,11 +36,12 @@ public class DisplayTargetBox : MonoBehaviour
 		
 		shootingInput = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerShootingInput>();
 
-//		lockOnTimer = 0f;
-//		playerTransform = FindObjectOfType<PlayerFlyingInput>().GetComponent<Transform>();
+		targetSelectAudioSource = GetComponent<AudioSource>();
+	//		lockOnTimer = 0f;
+	//		playerTransform = FindObjectOfType<PlayerFlyingInput>().GetComponent<Transform>();
 	}
 
-	void LateUpdate()
+void LateUpdate()
 	{
 
 		if(displayTarget.returnCurrentTarget() != null)
@@ -101,19 +108,30 @@ public class DisplayTargetBox : MonoBehaviour
 
 			if(shootingInput.lockedOn())
 			{
-				targetLock.gameObject.SetActive(true);
+				if(!lockSoundPlayed)
+				{
+					targetSelectAudioSource.PlayOneShot(lockSound, lockSoundVolume);
+				}
+
+				lockSoundPlayed = true;
+
+        targetLock.gameObject.SetActive(true);
 				targetLockRectTransform.localScale = targetBoxRectTransform.sizeDelta / 100;
 				targetLockRectTransform.anchoredPosition3D = targetBoxRectTransform.anchoredPosition3D;
 			}
 			else
 			{
-				targetLock.gameObject.SetActive(false);
+				lockSoundPlayed = false;
+
+        targetLock.gameObject.SetActive(false);
 			}
 		}
 		else
 		{
 			//prevents target from showing up when it is offscreen
-			targetBox.enabled = false;
+			lockSoundPlayed = false;
+
+      targetBox.enabled = false;
 			targetLock.gameObject.SetActive(false);
 		}
 	}
