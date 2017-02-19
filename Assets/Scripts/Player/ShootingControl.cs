@@ -172,4 +172,9 @@ public class ShootingControl : MonoBehaviour
 
 		muzzleFlashObject.SetActive(false);
 	}
+
+	public BulletFlight getBullet()
+	{
+		return m_bullet;
+	}
 }

@@ -85,4 +85,9 @@ public class BulletFlight : MonoBehaviour
         Destroy(explosion.gameObject, lifetime);
         Destroy(gameObject);
     }
+
+	public float getSpeed()
+	{
+		return m_bulletSpeed;
+	}
 }
