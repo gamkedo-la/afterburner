@@ -16,7 +16,6 @@ public class EnemyGunTurretAiInput : MonoBehaviour
 	private GunTurretControl m_gunTurretControlScript;
 	private WaitForSeconds m_waitTime;
 	private Transform m_player;
-	private Rigidbody playerRigidbody;
 
 	private State m_state = State.Rest;
 	private Vector3 m_playerDirection;
@@ -38,7 +37,7 @@ public class EnemyGunTurretAiInput : MonoBehaviour
 		if(playerObject != null)
 		{
 			m_player = playerObject.transform;
-			playerRigidbody = playerObject.GetComponent<Rigidbody>();
+			EnemyAIUtils.playerFlyingStats = playerObject.GetComponent<FlyingControl>();
 		}
 
 		m_waitTime = new WaitForSeconds(m_decisionRate);
@@ -46,7 +45,7 @@ public class EnemyGunTurretAiInput : MonoBehaviour
 		ShootingControl shootingControl = GetComponentInChildren<ShootingControl>();
 		BulletFlight bullet = shootingControl.getBullet();
 		bulletSpeed = bullet.getSpeed();
-  }
+	}
 
 
 	void Start()
@@ -104,15 +103,6 @@ public class EnemyGunTurretAiInput : MonoBehaviour
 	}
 
 
-	private static float StandardiseAngle(float angle)
-	{
-		float newAngle = (360f + angle) % 360f;
-
-		if(newAngle > 180f)
-			newAngle -= 360f;
-
-		return newAngle;
-	}
 
 
 	private void UpdateRest()
@@ -128,8 +118,7 @@ public class EnemyGunTurretAiInput : MonoBehaviour
 
     if(useNewFiringSolution)
 		{
-
-			targetDirection = calculateLeadDirection(m_playerDirection);
+			targetDirection = EnemyAIUtils.calculateLeadDirection(m_playerDirection, bulletSpeed, m_decisionRate);
 			if(targetDirection == Vector3.zero)
 			{
 				targetDirection = m_playerDirection;
@@ -143,55 +132,28 @@ public class EnemyGunTurretAiInput : MonoBehaviour
 		float angleForwards = Mathf.Atan2(forwardOnGround.x, forwardOnGround.y);
 		float anglePlayer = Mathf.Atan2(playerDirectionOnGround.x, playerDirectionOnGround.y);
 
-		m_playerHorizontalAngle = StandardiseAngle(Mathf.Rad2Deg * (anglePlayer - angleForwards));
+		m_playerHorizontalAngle = EnemyAIUtils.StandardiseAngle(Mathf.Rad2Deg * (anglePlayer - angleForwards));
 
 		float playerVerticalAngle = Mathf.Atan2(playerDirectionVertical.y, playerDirectionVertical.x);
 		float gunBarrelVerticalAngle = Mathf.Atan2(m_gunBarrelTransform.forward.y, forwardOnGround.magnitude);
 
 		m_playerVerticalAngle = Mathf.Rad2Deg * (gunBarrelVerticalAngle - playerVerticalAngle);
 
-		m_v = m_playerVerticalAngle;
-		m_h = m_playerHorizontalAngle;
+		Vector2 gunOrientation = m_gunTurretControlScript.getOrientation();
+		Debug.Log("Gun or: " + gunOrientation);
+		float maxPitchPerDecision = m_gunTurretControlScript.getPitchRate() * m_decisionRate;
+		float maxTurnPerDecision = m_gunTurretControlScript.getTurnRate() * m_decisionRate;
+
+		m_v = m_playerVerticalAngle / maxPitchPerDecision;
+		m_h = m_playerHorizontalAngle / maxTurnPerDecision;
+
+//		m_v = m_playerVerticalAngle;
+	//	m_h = m_playerHorizontalAngle;
+
+		Debug.DrawLine(m_gunBarrelTransform.position, targetDirection + m_gunBarrelTransform.position, Color.red, 0.2f);
 
 //		m_v = Mathf.Clamp(m_v, -1f, 1f);
 	//	m_h = Mathf.Clamp(m_h, -1f, 1f);
-	}
-
-	private Vector3 calculateLeadDirection(Vector3 playerDirection)
-	{
-		//Aim in front of player to lead shot
-		float timeToImpact = AimAhead(playerDirection, playerRigidbody.velocity, bulletSpeed);
-
-		//If there is a possible collision time in the future rather than the past
-		if(timeToImpact > 0f)
-		{
-			//Return point to aim at reletive to gun barrels
-			return (m_player.position + timeToImpact * playerRigidbody.velocity) - m_gunBarrelTransform.position;
-		}
-		//Else return the zero vector
-		return Vector3.zero;
-	}
-
-	// Calculate the time when we can hit a target with a bullet
-	// Return a negative time if there is no solution
-	protected float AimAhead(Vector3 delta, Vector3 vr, float muzzleV)
-	{
-		// Quadratic equation coefficients a*t^2 + b*t + c = 0
-		float a = Vector3.Dot(vr, vr) - muzzleV * muzzleV;
-		float b = 2f * Vector3.Dot(vr, delta);
-		float c = Vector3.Dot(delta, delta);
-
-		float det = b * b - 4f * a * c;
-
-		// If the determinant is negative, then there is no solution
-		if(det > 0f)
-		{
-			return 2f * c / (Mathf.Sqrt(det) - b);
-		}
-		else
-		{
-			return -1f;
-		}
 	}
 
 	private enum State
