@@ -3,24 +3,16 @@ using System.Collections;
 
 public class ShootingControl : MonoBehaviour
 {
-	[SerializeField]
-	BulletFlight m_bullet;
-	[SerializeField]
-	Transform[] m_bulletSpawnPoints;
-	[SerializeField]
-	Transform[] m_missileSpawnPoints;
-	[SerializeField]
-	float m_bulletCooldown = 0.15f, m_missileCooldown = 1.0f;
-	[SerializeField]
-	float m_muzzleFlashTime = 0.05f;
-	[SerializeField]
-	bool m_shakeCamera;
-	[SerializeField]
-	float m_cameraShakeMagnitude = 0.2f;
-	[SerializeField]
-	float m_cameraShakeDuration = 0.1f;
-	[SerializeField]
-	Vector2 m_gunShotPitchMultiplierMinMax = new Vector2(0.8f, 1.2f);
+	[SerializeField] BulletFlight m_bullet;
+	[SerializeField] Transform[] m_bulletSpawnPoints;
+	[SerializeField] Transform[] m_missileSpawnPoints;
+	[SerializeField] float m_bulletCooldown = 0.15f, m_missileCooldown = 1.0f;
+	[SerializeField] float m_muzzleFlashTime = 0.05f;
+	[SerializeField] bool m_shakeCamera;
+	[SerializeField] float m_cameraShakeMagnitude = 0.2f;
+	[SerializeField] float m_cameraShakeDuration = 0.1f;
+	[SerializeField] Vector2 m_gunShotPitchMultiplierMinMax = new Vector2(0.8f, 1.2f);
+	[SerializeField] float inaccuracyFactor = 0;
 
 	private float m_timeSinceBulletFired, m_timeSinceMissileFired;
 	private FlyingControl m_flyingControlScript;
@@ -34,8 +26,7 @@ public class ShootingControl : MonoBehaviour
 	private float[] m_gunShotAudioPitches;
 	private GameObject m_missilePrefab;
 
-	[SerializeField]
-	int m_missileAmmo = 8, missileDamage = 50;
+	[SerializeField] int m_missileAmmo = 8, missileDamage = 50;
 	public float timeToLockOn = 2f, lockOnAngle = 20f, lockOnRange = 400f;
 	
 
@@ -107,7 +98,7 @@ public class ShootingControl : MonoBehaviour
 
 			bullet.transform.position = spawnPoint.position;
 
-			bullet.transform.rotation = spawnPoint.rotation;
+			bullet.transform.rotation = Quaternion.Lerp(spawnPoint.rotation, Random.rotation, inaccuracyFactor);
 
 			if(m_flyingControlScript != null)
 				bullet.SetInitialVelocity(m_flyingControlScript.ForwardVelocity);

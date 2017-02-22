@@ -10,11 +10,13 @@ public class PlayerGunTurretInput : MonoBehaviour
     void Awake()
     {
         m_turretControlScript = GetComponent<GunTurretControl>();
+		Debug.Log("Awake turret!");
     }
 
 
     void Update()
     {
+		Debug.Log("Update turret!");
         float v = Input.GetAxis("Vertical");
         float h = Input.GetAxis("Horizontal");
 

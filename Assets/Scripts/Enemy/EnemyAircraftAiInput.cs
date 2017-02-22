@@ -258,7 +258,7 @@ public class EnemyAircraftAiInput : MonoBehaviour
 
 		m_pitchAngleToPlayer = m_playerVerticalAngle - m_pitchAngle;
 
-		Debug.DrawLine(transform.position, targetDirection + transform.position, Color.red, 0.2f);
+		//Debug.DrawLine(transform.position, targetDirection + transform.position, Color.red, 0.2f);
 	}
 
 
@@ -270,9 +270,13 @@ public class EnemyAircraftAiInput : MonoBehaviour
 		m_playerInRange = range <= m_playerInRangeAttackThreshold;
 
 		if(!m_playerInRange)
+		{
 			m_state = State.Patrol;
+		}
 		else
+		{
 			m_state = m_dotThisForwardToPlayer > m_evadeMaxDotThreshold ? State.Chase : State.Evade;
+		}
 	}
 
 

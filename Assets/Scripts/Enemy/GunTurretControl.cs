@@ -3,20 +3,14 @@ using System.Collections;
 
 public class GunTurretControl : MonoBehaviour
 {
-	[SerializeField]
-	Transform m_horizontalPivotPoint;
-	[SerializeField]
-	Transform m_verticalPivotPoint;
-	[SerializeField]
-	float m_turnRate = 40f;
-	[SerializeField]
-	float m_pitchRate = 40f;
-	[SerializeField]
-	float m_startPitch = 30f;
-	[SerializeField]
-	float m_minPitch = 5f;
-	[SerializeField]
-	float m_maxPitch = 85f;
+	[SerializeField] protected Transform m_horizontalPivotPoint;
+	[SerializeField] Transform m_verticalPivotPoint;
+	[SerializeField] float m_turnRate = 40f;
+	[SerializeField] float m_pitchRate = 40f;
+	[SerializeField] float m_startPitch = 30f;
+	[SerializeField] float m_minPitch = 5f;
+	[SerializeField] float m_maxPitch = 85f;
+	[SerializeField] bool invert;
 
 	private float m_v;
 	private float m_h;
@@ -29,7 +23,7 @@ public class GunTurretControl : MonoBehaviour
 
 
 
-	void Update()
+	protected virtual void Update()
 	{
 		m_horizontalPivotPoint.Rotate(Vector3.up, m_h * m_turnRate * Time.deltaTime);
 
@@ -38,6 +32,8 @@ public class GunTurretControl : MonoBehaviour
 
 		var verticalRotation = m_verticalPivotPoint.localEulerAngles;
 
+		Debug.Log(m_horizontalPivotPoint.localEulerAngles);
+
 		verticalRotation.x = Mathf.Clamp(verticalRotation.x, 360f - m_maxPitch, 360f - m_minPitch);
 
 		m_verticalPivotPoint.localEulerAngles = verticalRotation;
@@ -45,8 +41,8 @@ public class GunTurretControl : MonoBehaviour
 
 	public void Move(float v, float h)
 	{
-		m_v = v;
-		m_h = h;
+		m_v = invert ? -v : v;
+		m_h = invert ? -h : h;
 		Debug.DrawLine(m_verticalPivotPoint.position, m_verticalPivotPoint.position + 10 * m_verticalPivotPoint.forward, Color.yellow);
 
 		Debug.DrawLine(m_verticalPivotPoint.position, m_verticalPivotPoint.position + 15 * (Quaternion.AngleAxis(m_v, Vector3.right) * Quaternion.AngleAxis(m_h, Vector3.up) * m_verticalPivotPoint.forward), Color.green);

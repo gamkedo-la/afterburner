@@ -103,8 +103,6 @@ public class EnemyGunTurretAiInput : MonoBehaviour
 	}
 
 
-
-
 	private void UpdateRest()
 	{
 		m_v = 0f;
@@ -140,20 +138,14 @@ public class EnemyGunTurretAiInput : MonoBehaviour
 		m_playerVerticalAngle = Mathf.Rad2Deg * (gunBarrelVerticalAngle - playerVerticalAngle);
 
 		Vector2 gunOrientation = m_gunTurretControlScript.getOrientation();
-		Debug.Log("Gun or: " + gunOrientation);
+		
 		float maxPitchPerDecision = m_gunTurretControlScript.getPitchRate() * m_decisionRate;
 		float maxTurnPerDecision = m_gunTurretControlScript.getTurnRate() * m_decisionRate;
 
 		m_v = m_playerVerticalAngle / maxPitchPerDecision;
 		m_h = m_playerHorizontalAngle / maxTurnPerDecision;
 
-//		m_v = m_playerVerticalAngle;
-	//	m_h = m_playerHorizontalAngle;
-
 		Debug.DrawLine(m_gunBarrelTransform.position, targetDirection + m_gunBarrelTransform.position, Color.red, 0.2f);
-
-//		m_v = Mathf.Clamp(m_v, -1f, 1f);
-	//	m_h = Mathf.Clamp(m_h, -1f, 1f);
 	}
 
 	private enum State
