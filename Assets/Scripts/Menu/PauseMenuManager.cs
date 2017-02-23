@@ -10,10 +10,12 @@ public class PauseMenuManager : MonoBehaviour
 	private bool m_inputInUse;
 	private EventSystem m_eventSystem;
 	private InvertControlsButton invertControlsButton;
+	private MouseControlsButton mouseControlsButton;
 
-	void Awake()
+  void Awake()
 	{
 		invertControlsButton = GetComponentInChildren<InvertControlsButton>();
+		mouseControlsButton = GetComponentInChildren<MouseControlsButton>();
 		m_canvasComponent = GetComponent<Canvas>();
 		m_canvasComponent.enabled = false;
 		m_eventSystem = GameObject.Find("EventSystem").GetComponent<EventSystem>();
@@ -65,6 +67,11 @@ public class PauseMenuManager : MonoBehaviour
 		PlayerFlyingInput flyingInput = FindObjectOfType<PlayerFlyingInput>();
     flyingInput.toggleInvert();
 		invertControlsButton.SetButtonColor(flyingInput.getInvert());
+  }
+
+	public void toggleMouseControls()
+	{
+		mouseControlsButton.clicked();
   }
 
 	public void QuitGame()

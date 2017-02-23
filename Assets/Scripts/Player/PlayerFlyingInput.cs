@@ -11,9 +11,10 @@ public class PlayerFlyingInput : MonoBehaviour
 	private FlyingControl m_flyingControlScript;
 
 	private bool mouseControl;
-	private float prevVerticalAxis, prevHorizontalAxis;
+	private float mouseControlActivationThreshold;
+  private float prevVerticalAxis, prevHorizontalAxis;
 	private float prevMouseX, prevMouseY;
-	private static bool invert = true, invertLoaded = false;
+	private static bool invert = true, controlsLoaded = false;
 
 	void Awake()
 	{
@@ -24,10 +25,11 @@ public class PlayerFlyingInput : MonoBehaviour
 		prevMouseX = Input.mousePosition.x;
 		prevMouseY = Input.mousePosition.y;
 
-		if(!invertLoaded)
+		if(!controlsLoaded)
 		{
 			invert = PlayerPrefs.GetInt("invert controls", 1) > 0 ? true : false;
-			invertLoaded = true;
+			setMouseControlActivationThreshold((MouseControlsButton.MouseControlSettings)PlayerPrefs.GetInt("mouse controls", 2));
+			controlsLoaded = true;
 		}
 	}
 		
@@ -37,8 +39,10 @@ public class PlayerFlyingInput : MonoBehaviour
 		{
 			mouseControl = false;
 		}
-		else if (prevMouseX > Input.mousePosition.x + 1 || prevMouseY > Input.mousePosition.y + 1
-			    || prevMouseX < Input.mousePosition.x - 1 || prevMouseY < Input.mousePosition.y - 1)
+		else if (prevMouseX >= Input.mousePosition.x + mouseControlActivationThreshold
+			    || prevMouseY >= Input.mousePosition.y + mouseControlActivationThreshold
+					|| prevMouseX <= Input.mousePosition.x - mouseControlActivationThreshold
+					|| prevMouseY <= Input.mousePosition.y - mouseControlActivationThreshold)
 		{
 			mouseControl = true;
 		}
@@ -47,17 +51,7 @@ public class PlayerFlyingInput : MonoBehaviour
 		float a;
 
 		if (mouseControl)
-		//if (false)
 		{
-			/*
-			Vector2 mouseVector = new Vector2(Mathf.Clamp(Input.mousePosition.y / Screen.height, 0f, 1f) * 2 - 1,
-	Mathf.Clamp(Input.mousePosition.x / Screen.width, 0f, 1f) * 2 - 1);
-			if (mouseVector.magnitude > 1)
-			{
-				mouseVector.Normalize();
-			}
-			*/
-
 			float mouseX = Mathf.Clamp(Input.mousePosition.y / Screen.height, 0f, 1f) * 2 - 1;
 			float mouseY = Mathf.Clamp(Input.mousePosition.x / Screen.width, 0f, 1f) * 2 - 1;
 
@@ -67,23 +61,19 @@ public class PlayerFlyingInput : MonoBehaviour
 			if (Mathf.Abs(mouseX) <= 0.5f)
 			{
 				v = (Mathf.Pow(2f * mouseX, 1f / sharpness)) / 2f;
-				//v = Mathf.Pow(mouseX, 2) * Mathf.Sign(mouseX);
 			}
 			else
 			{
 				v = 1f - (Mathf.Pow(2f * (1f - mouseX), 1f / sharpness)) / 2f;
-				//v = 1f - Mathf.Pow(mouseX, 2) * Mathf.Sign(mouseX);
 			}
 
 			if (Mathf.Abs(mouseY) <= 0.5f)
 			{
 				h = (Mathf.Pow(2f * mouseY, 1f / sharpness)) / 2f;
-				//v = Mathf.Pow(mouseX, 2) * Mathf.Sign(mouseX);
 			}
 			else
 			{
 				h = 1f - (Mathf.Pow(2f * (1f - mouseY), 1f / sharpness)) / 2f;
-				//v = 1f - Mathf.Pow(mouseX, 2) * Mathf.Sign(mouseX);
 			}
 
 			v = (Mathf.Pow(2f * mouseX, 1f / sharpness)) / 4f;
@@ -128,4 +118,24 @@ public class PlayerFlyingInput : MonoBehaviour
 	{
 		return invert;
 	}
+
+	public void setMouseControlActivationThreshold(MouseControlsButton.MouseControlSettings state)
+	{
+		switch(state)
+		{
+			case MouseControlsButton.MouseControlSettings.disabled:
+				mouseControlActivationThreshold = Screen.width + Screen.height + 1;
+				mouseControl = false;
+				PlayerPrefs.SetInt("mouse controls", 0);
+				break;
+			case MouseControlsButton.MouseControlSettings.enabled:
+				mouseControlActivationThreshold = 0f;
+				PlayerPrefs.SetInt("mouse controls", 1);
+				break;
+			case MouseControlsButton.MouseControlSettings.auto:
+				mouseControlActivationThreshold = 2f;
+				PlayerPrefs.SetInt("mouse controls", 2);
+				break;
+		}
+  }
 }

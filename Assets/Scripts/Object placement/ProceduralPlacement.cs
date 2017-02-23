@@ -60,6 +60,9 @@ public class ProceduralPlacement : MonoBehaviour
 	[SerializeField]
 	PlacementOptionsClutter[] m_clutterOptions;
 
+	[Header("Clutter Set")]
+	[SerializeField] ClutterSet clutterSet;
+
 	private MapGenerator m_mapGenerator;
 	private Vector3 m_playerPosition;
 	private Vector3 m_groundZeroPosition;
@@ -73,6 +76,8 @@ public class ProceduralPlacement : MonoBehaviour
 
 	void Awake()
 	{
+		m_clutterOptions = clutterSet.getClutterSet();
+
 		m_seed = m_useGlobalSeed ? SeedManager.MissionSeed : m_seed;
 		//print("Mission seed: " + m_seed);
 
