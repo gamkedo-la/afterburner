@@ -2,27 +2,28 @@
 using System.Collections;
 
 public class CrystalSmoothSlider : MonoBehaviour {
-
-	public Material[] smooth;
-	Renderer myRenderer;
-	int counter = 0;
-	int direction = 1;
+	private Material crystalAlienMaterial;
+	public float smoothness;
+	public float smoothnessDelta;
 
 	IEnumerator ChangeMaterial(){
 		while (true) {
-			yield return new WaitForSeconds (0.1f);
-			counter += direction;
-			myRenderer.material = smooth [counter];
-			if (counter == 10 || counter == 0) {
-				direction *= -1;
+			yield return new WaitForSeconds (0.05f);
+			smoothness = Mathf.Repeat((smoothness + 0.05f * smoothnessDelta), 2);
+			if(smoothness <= 1)
+			{
+				crystalAlienMaterial.SetFloat("_Glossiness", smoothness);
+			}
+			else
+			{
+				crystalAlienMaterial.SetFloat("_Glossiness", 2 - smoothness);
 			}
 		}
 	}
 
-	// Use this for initialization
 	void Start () {
-		myRenderer = gameObject.GetComponent<Renderer> ();
-		myRenderer.material = smooth [counter];
-		StartCoroutine (ChangeMaterial ());
+		crystalAlienMaterial = gameObject.GetComponent<Renderer>().material;
+		//crystalAlienMaterial.SetFloat("_Glossiness", 1f);
+		StartCoroutine(ChangeMaterial());
 	}
 }

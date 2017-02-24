@@ -32,8 +32,6 @@ public class GunTurretControl : MonoBehaviour
 
 		var verticalRotation = m_verticalPivotPoint.localEulerAngles;
 
-		Debug.Log(m_horizontalPivotPoint.localEulerAngles);
-
 		verticalRotation.x = Mathf.Clamp(verticalRotation.x, 360f - m_maxPitch, 360f - m_minPitch);
 
 		m_verticalPivotPoint.localEulerAngles = verticalRotation;

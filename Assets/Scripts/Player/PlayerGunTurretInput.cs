@@ -10,7 +10,6 @@ public class PlayerGunTurretInput : MonoBehaviour
     void Awake()
     {
         m_turretControlScript = GetComponent<GunTurretControl>();
-		Debug.Log("Awake turret!");
     }
 
 
