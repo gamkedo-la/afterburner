@@ -127,17 +127,14 @@ public class PlayerFlyingInput : MonoBehaviour
 				mouseControlActivationThreshold = Screen.width + Screen.height + 1;
 				mouseControl = false;
 				PlayerPrefs.SetInt("mouse controls", 0);
-				Debug.Log("Mouse 0: " + mouseControlActivationThreshold);
 				break;
 			case MouseControlsButton.MouseControlSettings.enabled:
 				mouseControlActivationThreshold = 0f;
 				PlayerPrefs.SetInt("mouse controls", 1);
-				Debug.Log("Mouse 1");
 				break;
 			case MouseControlsButton.MouseControlSettings.auto:
 				mouseControlActivationThreshold = 2f;
 				PlayerPrefs.SetInt("mouse controls", 2);
-				Debug.Log("Mouse 2");
 				break;
 		}
   }

@@ -56,9 +56,7 @@ public class ProceduralPlacement : MonoBehaviour
 	[SerializeField]
 	PlacementOptionsWater[] m_waterDefencesOptions;
 
-	[Header("Clutter")]
-	[SerializeField]
-	PlacementOptionsClutter[] m_clutterOptions;
+	private PlacementOptionsClutter[] m_clutterOptions;
 
 	[Header("Clutter Set")]
 	[SerializeField] ClutterSet clutterSet;
