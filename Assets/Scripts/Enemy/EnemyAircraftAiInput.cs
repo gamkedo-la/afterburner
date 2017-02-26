@@ -71,7 +71,10 @@ public class EnemyAircraftAiInput : MonoBehaviour
 	private bool m_bDoAvoid; //bool that tracks if state should be avoid, true during whisker collision
 	private bool m_bAvoidResetWait; //flag to track if we are already waiting to reset, in case we get more false messages for whisker collisions
 
-	private float bulletSpeed;
+	private float bulletSpeed; //Need to know speed of bullet to aim ahead of player
+
+	private float brakeTimer, initialSpeed;
+	[SerializeField] float brakeDistance, brakeTime;
 
 	void Awake()
 	{
@@ -95,6 +98,9 @@ public class EnemyAircraftAiInput : MonoBehaviour
 		ShootingControl shootingControl = GetComponentInChildren<ShootingControl>();
 		BulletFlight bullet = shootingControl.getBullet();
 		bulletSpeed = bullet.getSpeed();
+
+		initialSpeed = m_flyingControlScript.ForwardSpeed;
+		Debug.Log("init sped: " + initialSpeed);
 	}
 
 
@@ -176,6 +182,8 @@ public class EnemyAircraftAiInput : MonoBehaviour
 
 			if(m_state != State.Avoid)
 				CheckAltitude();
+
+			UpdateAcceleration();
 
 			yield return m_waitTime;
 		}
@@ -261,7 +269,34 @@ public class EnemyAircraftAiInput : MonoBehaviour
 		//Debug.DrawLine(transform.position, targetDirection + transform.position, Color.red, 0.2f);
 	}
 
+	private void UpdateAcceleration()
+	{
+		//Enemy AI air brakes when player is too close
+		if(m_playerDirection.sqrMagnitude < brakeDistance * brakeDistance && brakeTimer <= 0f
+			&& m_state != State.Flee && m_state != State.Evade)
+		{
+			brakeTimer = brakeTime;
+		}
 
+		if(brakeTimer > 0)
+		{
+			brakeTimer -= Time.deltaTime;
+			m_a = -1f;
+		}
+		else if(m_state != State.Flee) //Speed back up when not braking
+		{
+			m_a = Mathf.Clamp((m_patrolSpeed - m_flyingControlScript.ForwardSpeed)
+				/ (m_decisionRate * m_flyingControlScript.AccelerationRate())
+				, -1f, 1f);
+		}
+		else
+		{
+			if(m_flyingControlScript.ForwardSpeed < m_flyingControlScript.MaxForwardSpeed)
+				m_a = m_thrustControlsSensitivity;
+			else
+				m_a = 0f;
+		}
+	}
 
 	private void CheckPlayerRange()
 	{
@@ -282,7 +317,7 @@ public class EnemyAircraftAiInput : MonoBehaviour
 
 	private void UpdatePatrol()
 	{
-		m_a = Mathf.Clamp(m_patrolSpeed - m_flyingControlScript.ForwardSpeed, -1f, 1f);
+		//m_a = Mathf.Clamp(m_patrolSpeed - m_flyingControlScript.ForwardSpeed,	-1f, 1f);
 
 		m_bankAngleToAimFor = m_spawnBankAngle;
 
@@ -381,7 +416,7 @@ public class EnemyAircraftAiInput : MonoBehaviour
 	{
 		FlattenPitch();
 
-		m_a = Mathf.Clamp(m_patrolSpeed - m_flyingControlScript.ForwardSpeed, -1f, 1f);
+		//m_a = Mathf.Clamp(m_patrolSpeed - m_flyingControlScript.ForwardSpeed, -1f, 1f);
 
 		m_timeSinceEvadeChange += m_decisionRate;
 
@@ -436,11 +471,6 @@ public class EnemyAircraftAiInput : MonoBehaviour
 
 	private void UpdateFlee()
 	{
-		if(m_flyingControlScript.ForwardSpeed < m_flyingControlScript.MaxForwardSpeed)
-			m_a = m_thrustControlsSensitivity;
-		else
-			m_a = 0f;
-
 		FlattenPitch();
 		FlattenRoll();
 	}

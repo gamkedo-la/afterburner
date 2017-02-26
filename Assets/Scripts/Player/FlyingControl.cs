@@ -20,7 +20,7 @@ public class FlyingControl : MonoBehaviour
 	[SerializeField]
 	float m_maxAltitude = 1500f;
 
-	[Range(0f, 100f)]
+
 	[SerializeField]
 	float m_accelerationRate = 50f;
 
@@ -128,5 +128,10 @@ public class FlyingControl : MonoBehaviour
 	public float MaxForwardSpeed
 	{
 		get { return m_maxForwardSpeed; }
+	}
+
+	public float AccelerationRate()
+	{
+		return m_accelerationRate;
 	}
 }
