@@ -83,7 +83,10 @@ public class PlayerShootingInput : MonoBehaviour
 
 	void LateUpdate()
 	{
-		target = m_targetInfo.returnCurrentTarget().transform;
+		if(m_targetInfo != null)
+		{
+			target = m_targetInfo.returnCurrentTarget().transform;
+		}
 
 		if(target != null)
 		{

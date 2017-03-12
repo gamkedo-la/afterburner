@@ -100,7 +100,6 @@ public class EnemyAircraftAiInput : MonoBehaviour
 		bulletSpeed = bullet.getSpeed();
 
 		initialSpeed = m_flyingControlScript.ForwardSpeed;
-		Debug.Log("init sped: " + initialSpeed);
 	}
 
 

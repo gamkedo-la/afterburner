@@ -7,12 +7,16 @@ public class TankBehavior : MonoBehaviour
 	private float scale;
 
 	private Vector2 startPos, targetPos;
-	public float roamingDistance = 250f, groundSpeed = 10f, rotationSpeed = 30f;
+	public LayerMask avoidLayers;
+	public float roamingDistance = 250f, groundSpeed = 10f, rotationSpeed = 30f, decisionRate, avoidDistance = 100f, rayOffset = 1f;
+	private float decisionTimer;
+	private bool thinking;
 
 	private EnemyHealth health;
 
 	void Start()
 	{
+		decisionTimer = Random.Range(0, decisionRate);
 		health = GetComponent<EnemyHealth>();
 
 		var mapGeneratorObject = GameObject.FindGameObjectWithTag(Tags.MapGenerator);
@@ -36,13 +40,31 @@ public class TankBehavior : MonoBehaviour
 
 	void Update()
 	{
-		float x = transform.position.x;
+		if(health.IsDead)
+		{
+			return;
+		}
+
+    if(thinking)
+		{
+			think();
+			return;
+		}
+
+		decisionTimer -= Time.deltaTime;
+		if(decisionTimer <= 0)
+		{
+			decisionTimer = decisionRate;
+			makeDecisions();
+    }
+
+    float x = transform.position.x;
 		float z = transform.position.z;
 		Vector2 twoDimentionalPos = new Vector2(x, z);
 		Vector2 heading = targetPos - twoDimentionalPos;
 
 		//If we are not at the target position, move towards it
-		if(!health.IsDead && heading.magnitude > groundSpeed * 1.1f)
+		if(heading.magnitude > groundSpeed * 1.1f)
 		{
 			twoDimentionalPos += heading.normalized * groundSpeed;
 			x = twoDimentionalPos.x;
@@ -55,6 +77,7 @@ public class TankBehavior : MonoBehaviour
 			pickTarget();
 		}
 		//TODO do something if we ARE at targetPos or just have another behavior sate
+		//Forget it, just roam
 	}
 
 	//TODO add delta time
@@ -64,7 +87,7 @@ public class TankBehavior : MonoBehaviour
 		Vector2 facing = new Vector2(transform.forward.x, transform.forward.z).normalized;
 
 		//If the terrain slope is too great, don't move and pick another target
-		if(Vector3.Cross(terrainNormal, Vector3.up).sqrMagnitude > 0.04f)
+		if(Vector3.Cross(terrainNormal, Vector3.up).sqrMagnitude > 0.04f || m_mapGenerator.GetTerrainHeight(x, z) <= 0)
 		{
 			pickTarget();
 			return;
@@ -109,4 +132,39 @@ public class TankBehavior : MonoBehaviour
 	{
 		targetPos = new Vector2(Random.Range(-roamingDistance, roamingDistance), Random.Range(-roamingDistance, roamingDistance)) + startPos;
 	}
+
+	private void makeDecisions()
+	{
+		Vector3 v1 = transform.right * rayOffset;
+		Vector3 v2 = transform.position + transform.up*3 + v1;
+		Vector3 v3 = transform.position + transform.up*3 - v1;
+		Debug.DrawLine(v2, v2 + transform.forward * avoidDistance, Color.cyan, decisionRate);
+		Debug.DrawLine(v3, v3 + transform.forward * avoidDistance, Color.cyan, decisionRate);
+
+		if(Physics.Raycast(transform.position + transform.right * rayOffset + transform.up*3, transform.forward, avoidDistance, avoidLayers)
+			|| Physics.Raycast(transform.position - transform.right * rayOffset + transform.up*3, transform.forward, avoidDistance, avoidLayers))
+		{
+			thinking = true;
+			Debug.DrawLine(transform.position, transform.position + transform.forward * avoidDistance, Color.red, decisionRate);
+
+			pickTarget();
+		}
+  }
+
+	//Best name ever
+	//This stops the tank in place while it finds a clear path to traverse
+	private void think()
+	{
+		Vector3 targetWorldPos = new Vector3(targetPos.x, m_mapGenerator.GetTerrainHeight(targetPos.x, targetPos.y), targetPos.y);
+		float targetDistance = Vector3.Magnitude(targetWorldPos - transform.position);
+
+		if(Physics.Raycast(transform.position + transform.up * 3, targetWorldPos - transform.position, targetDistance, avoidLayers))
+		{
+			pickTarget();
+		}
+		else
+		{
+			thinking = false;
+		}
+  }
 }
