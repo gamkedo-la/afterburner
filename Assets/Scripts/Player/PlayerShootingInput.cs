@@ -96,7 +96,7 @@ public class PlayerShootingInput : MonoBehaviour
 
 			float targetDistance = Vector3.Distance(target.transform.position, playerTransform.position);
 
-			if(targetAngle < m_shootingControlScript.lockOnAngle && targetDistance < m_shootingControlScript.lockOnRange)
+			if(targetAngle < m_shootingControlScript.lockOnAngle && targetDistance < m_shootingControlScript.lockOnRange && m_shootingControlScript.getMissileAmmo() > 0)
 			{
 				lockOnTimer += Time.deltaTime;
 			}
