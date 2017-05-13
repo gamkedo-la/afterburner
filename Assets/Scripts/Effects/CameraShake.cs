@@ -4,7 +4,7 @@ using System.Collections;
 public class CameraShake : MonoBehaviour
 {
 	private Transform m_camera;
-	private Quaternion originalCamRot;
+	private Quaternion originalCamRot, shakeCamRot;
 
 	void Awake()
 	{
@@ -37,10 +37,12 @@ public class CameraShake : MonoBehaviour
 			x *= damper;
 
 
-			m_camera.localRotation = originalCamRot;
+			shakeCamRot = originalCamRot;
 
-			m_camera.localRotation *= Quaternion.AngleAxis(z * magnitude, Vector3.forward);
-			m_camera.localRotation *= Quaternion.AngleAxis(x * magnitude, Vector3.right);
+			shakeCamRot *= Quaternion.AngleAxis(z * magnitude, Vector3.forward);
+			shakeCamRot *= Quaternion.AngleAxis(x * magnitude, Vector3.right);
+
+			m_camera.localRotation = Quaternion.Lerp(shakeCamRot, originalCamRot, percentComplete);
 
 			yield return null;
 		}
