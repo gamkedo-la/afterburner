@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class CameraSwitcher : MonoBehaviour
 {
-    private static readonly string CameraAxis = "Camera";
+    private static readonly string CameraAxis = "Cycle View";
 
     [SerializeField] Transform[] m_cameraPositions;
     [SerializeField] int[] m_indicesToShowHud = new int[] { 0, 1 };

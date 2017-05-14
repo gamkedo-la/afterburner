@@ -6,7 +6,7 @@ public class PlayerFlyingInput : MonoBehaviour
 {
 	private static readonly string Vertical = "Vertical";
 	private static readonly string Horizontal = "Horizontal";
-	private static readonly string Acceleration = "Acceleration";
+	private static readonly string Acceleration = "Throttle";
 
 	private FlyingControl m_flyingControlScript;
 

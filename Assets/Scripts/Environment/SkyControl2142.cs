@@ -28,7 +28,7 @@ public class SkyControl2142 : MonoBehaviour
 		offset += scrollDirection * Time.deltaTime;
 		offset.x = offset.x % 1;
 		offset.y = offset.y % 1;
-		Vector2 texOffset = sky.GetTextureOffset("_FrontTexture");
+		//Vector2 texOffset = sky.GetTextureOffset("_FrontTexture");
 		sky.SetTextureOffset("_FrontTexture", offset);
 		sky.SetFloat("_Altitude", playerPosition.position.y / 4000);
 

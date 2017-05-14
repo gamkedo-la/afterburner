@@ -4,7 +4,7 @@ using System.Collections;
 public class TankBehavior : MonoBehaviour
 {
 	private static MapGenerator m_mapGenerator;
-	private float scale;
+	//private float scale;
 
 	private Vector2 startPos, targetPos;
 	public LayerMask avoidLayers;
@@ -32,7 +32,7 @@ public class TankBehavior : MonoBehaviour
 		}
 
 		m_mapGenerator.Initialise();
-		scale = m_mapGenerator.uniformScale * 2;
+		//scale = m_mapGenerator.uniformScale * 2;
 
 		startPos = new Vector2(transform.position.x, transform.position.z);
 		pickTarget();

@@ -5,8 +5,8 @@ using System.Collections;
 [RequireComponent(typeof(ShootingControl))]
 public class PlayerShootingInput : MonoBehaviour
 {
-	private static readonly string Shoot = "Shoot", Missile = "Rocket";
-
+	private static readonly string Shoot = "Shoot", Missile = "Missile";
+	
 	private DisplayTarget m_targetInfo;
 	private FlyingControl m_flyingControlScript;
 	private ShootingControl m_shootingControlScript;
@@ -54,12 +54,12 @@ public class PlayerShootingInput : MonoBehaviour
 	void Update()
 	{
 
-		if((Input.GetAxisRaw(Shoot) == 1 || Input.GetAxisRaw(Shoot) == -1) && Time.timeScale > 0)
+		if((Input.GetAxisRaw(Shoot) == 1) && Time.timeScale > 0)
 		{
 			m_shootingControlScript.Shoot();
 		}
 
-		if((Input.GetAxisRaw(Missile) == 1 || Input.GetAxisRaw(Missile) == -1) && Time.timeScale > 0 && lockedOn())
+		if((Input.GetAxisRaw(Missile) == 1) && Time.timeScale > 0 && lockedOn())
 		{
 			GameObject missile = m_shootingControlScript.Launch();
 			if(missile != null)
