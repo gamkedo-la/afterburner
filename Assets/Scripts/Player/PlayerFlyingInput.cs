@@ -6,7 +6,9 @@ public class PlayerFlyingInput : MonoBehaviour
 {
 	private static readonly string Vertical = "Vertical";
 	private static readonly string Horizontal = "Horizontal";
-	private static readonly string Acceleration = "Throttle";
+	private static readonly string Acceleration = "Throttle", AccelerationJoy = "ThrottleJoy";
+	private static float lastAccelerationJoy = 0f;
+	private static bool AcceleratingWithJoy = false;
 
 	private FlyingControl m_flyingControlScript;
 
@@ -24,6 +26,7 @@ public class PlayerFlyingInput : MonoBehaviour
 		prevHorizontalAxis = 0f;
 		prevMouseX = Input.mousePosition.x;
 		prevMouseY = Input.mousePosition.y;
+		lastAccelerationJoy = Input.GetAxis(AccelerationJoy);
 
 		if(!controlsLoaded)
 		{
@@ -81,14 +84,14 @@ public class PlayerFlyingInput : MonoBehaviour
 
 			v = Mathf.Pow(mouseX, 2) * Mathf.Sign(mouseX);
 			h = Mathf.Pow(mouseY, 2) * Mathf.Sign(mouseY);
-			a = Input.GetAxis(Acceleration);
 		}
 		else
 		{
 			v = Input.GetAxis(Vertical);
 			h = Input.GetAxis(Horizontal);
-			a = Input.GetAxis(Acceleration);
 		}
+
+		a = getAccelerationInput();
 
 		prevMouseX = Input.mousePosition.x;
 		prevMouseY = Input.mousePosition.y;
@@ -98,6 +101,75 @@ public class PlayerFlyingInput : MonoBehaviour
 
 		m_flyingControlScript.PitchAndRollInput(v, h);
 		m_flyingControlScript.ThrustInput(a);
+	}
+
+	private float getAccelerationInput()
+	{
+		float joyInput = Input.GetAxis(AccelerationJoy);
+		float keyboardInput = Input.GetAxis(Acceleration);
+
+		if(!Mathf.Approximately(joyInput, lastAccelerationJoy))
+		{
+			AcceleratingWithJoy = true;
+			lastAccelerationJoy = joyInput;
+		}
+		if(keyboardInput != 0)
+		{
+			AcceleratingWithJoy = false;
+		}
+
+		if(AcceleratingWithJoy)
+		{
+			return calculateJoy();
+		}
+		else
+		{
+			return keyboardInput;
+		}
+	}
+
+	private float calculateJoy()
+	{
+		float normalizedInput = (Input.GetAxis(AccelerationJoy) + 1) / 2;
+		float currentSpeedPercent = (m_flyingControlScript.ForwardSpeed - m_flyingControlScript.MinForwardSpeed) / (m_flyingControlScript.MaxForwardSpeed - m_flyingControlScript.MinForwardSpeed);
+		float speedRange = m_flyingControlScript.MaxForwardSpeed - m_flyingControlScript.MinForwardSpeed;
+
+		if(Mathf.Approximately(normalizedInput, currentSpeedPercent)) //We have reached desired speed
+		{
+			AcceleratingWithJoy = false;
+			return 0;
+		}
+		else
+		{
+			float deltaSpeed = normalizedInput * m_flyingControlScript.AccelerationRate() * Time.deltaTime;
+			float nextSpeed = deltaSpeed + m_flyingControlScript.ForwardSpeed;
+			float targetSpeed = normalizedInput * speedRange + m_flyingControlScript.MinForwardSpeed;
+
+			Debug.Log("tar , forw: " + targetSpeed + " , " + m_flyingControlScript.ForwardSpeed);
+
+			if(normalizedInput < currentSpeedPercent) //Decelerating
+			{
+				Debug.Log("de");
+				if(nextSpeed < targetSpeed)
+				{
+					AcceleratingWithJoy = false;
+					return 2*(nextSpeed - targetSpeed) / speedRange;
+				}
+				return -1f;
+			}
+			else if(normalizedInput > currentSpeedPercent) //Accelerating
+			{
+				Debug.Log("ac");
+				if(nextSpeed > targetSpeed)
+				{
+					Debug.Log("ac");
+					AcceleratingWithJoy = false;
+					return 2*(nextSpeed - targetSpeed) / speedRange;
+				}
+				return 1f;
+			}
+			return 0;
+		}
 	}
 
 	public void toggleInvert()

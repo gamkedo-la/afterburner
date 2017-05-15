@@ -124,6 +124,10 @@ public class FlyingControl : MonoBehaviour
 		get { return m_forwardSpeed; }
 	}
 
+	public float MinForwardSpeed
+	{
+		get { return m_minForwardSpeed; }
+	}
 
 	public float MaxForwardSpeed
 	{
